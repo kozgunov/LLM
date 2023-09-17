@@ -1,0 +1,1 @@
+License file is necessary solely for Jetbrain acception for using PyCharm
