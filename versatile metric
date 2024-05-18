@@ -1,0 +1,48 @@
+
+def standardize_metric(value, min_val, max_val):  # it's to be in range [0,1]
+    return (value - min_val) / (max_val - min_val)
+
+
+def composite_metric(f1, bleu, rouge, f1_range, bleu_range, rouge_range, weights): # main function, which compose them together
+    f1_std = standardize_metric(f1, *f1_range)
+    bleu_std = standardize_metric(bleu, *bleu_range)
+    rouge_std = standardize_metric(rouge, *rouge_range)
+    composite = (weights['f1_score'] * f1_std + 
+                 weights['bleu_score'] * bleu_std +
+                 weights['rouge_score'] * rouge_std)
+    return composite
+
+
+def should_update_model(current_composite, previous_composite, threshold=0.05): # or 0.02
+    improvemed = (current_composite - previous_composite) / previous_composite
+    return improvemed >= threshold
+
+
+weights = {
+    'f1_score': 0.3,    # F1 Score
+    'bleu_score': 0.4,  # BLEU Score
+    'rouge_score': 0.3  # ROUGE Score
+}
+
+# ranges for each of metric
+f1_range = (0, 1)   
+bleu_range = (0, 1)  
+rouge_range = (0, 1) 
+
+# check an example 
+f1_score = 0.85
+bleu_score = 0.75
+rouge_score = 0.65
+
+# calculate the score
+composite = composite_metric(f1_score, bleu_score, rouge_score, f1_range, bleu_range, rouge_range, weights)
+print(f"Composite Score: {composite:.2f}")
+
+# example of performances 
+current_composite = 0.78
+previous_composite = 0.74
+
+if should_update_model(current_composite, previous_composite):
+    print(1)     # Update the model.
+else:
+    print(0)     # Do not update the model.
